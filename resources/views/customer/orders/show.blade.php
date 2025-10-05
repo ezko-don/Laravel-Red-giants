@@ -12,7 +12,24 @@
 
     <div class="py-12">
         <div class="max-w-4xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+            <!-- Success Message for New Orders -->
+            @if(session('success'))
+                <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-6 mb-6 rounded-r-xl shadow-lg animate__animated animate__fadeInDown">
+                    <div class="flex items-center">
+                        <div class="bg-green-500 rounded-full p-2 mr-4">
+                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-bold">Order Confirmed!</h3>
+                            <p class="text-sm">{{ session('success') }}</p>
+                        </div>
+                    </div>
+                </div>
+            @endif
+            
+            <div class="bg-white overflow-hidden shadow-lg sm:rounded-2xl">
                 <div class="p-6">
                     <!-- Order Header -->
                     <div class="border-b border-gray-200 pb-6 mb-6">

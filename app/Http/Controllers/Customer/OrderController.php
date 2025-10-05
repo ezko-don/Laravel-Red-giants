@@ -67,7 +67,7 @@ class OrderController extends Controller
                 ->with('error', 'Your cart is empty!');
         }
 
-        DB::transaction(function () use ($cartItems) {
+        $order = DB::transaction(function () use ($cartItems) {
             // Calculate total
             $total = $cartItems->sum(function ($item) {
                 return $item->quantity * $item->product->price;
@@ -101,9 +101,12 @@ class OrderController extends Controller
 
             // Clear cart
             Cart::where('user_id', Auth::id())->delete();
+            
+            return $order;
         });
 
-        return redirect()->route('customer.orders.index')
-            ->with('success', 'Order placed successfully!');
+        // Redirect to order success page showing order summary/ID
+        return redirect()->route('customer.orders.show', $order)
+            ->with('success', "Order #{$order->id} placed successfully! Your order is being processed.");
     }
 }
