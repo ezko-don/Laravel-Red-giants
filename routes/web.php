@@ -8,7 +8,13 @@ use App\Http\Controllers\Customer\ProductController as CustomerProductController
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', [CustomerProductController::class, 'index'])->name('home');
+// Landing page
+Route::get('/', function () {
+    return view('landing');
+})->name('landing');
+
+// Shop/Products page
+Route::get('/shop', [CustomerProductController::class, 'index'])->name('home');
 
 Route::get('/dashboard', function () {
     return view('dashboard');
