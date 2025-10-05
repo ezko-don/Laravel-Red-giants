@@ -10,6 +10,8 @@
 
 **A modern, full-stack e-commerce platform built with Laravel 11, featuring role-based authentication, advanced product management, and seamless checkout experience.**
 
+[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/ezko-don/Laravel-Red-giants?quickstart=1)
+
 [🚀 Live Demo](#live-demo) • [📖 Documentation](#documentation) • [🎯 Features](#features) • [⚡ Quick Start](#quick-start)
 
 </div>

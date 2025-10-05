@@ -1,0 +1,37 @@
+{
+  "name": "Mini Shop Lite Laravel",
+  "image": "mcr.microsoft.com/devcontainers/php:1-8.3-bullseye",
+  "features": {
+    "ghcr.io/devcontainers/features/node:1": {
+      "version": "20"
+    },
+    "ghcr.io/devcontainers/features/git:1": {},
+    "ghcr.io/devcontainers/features/github-cli:1": {}
+  },
+  "postCreateCommand": "bash .devcontainer/setup.sh",
+  "forwardPorts": [8000, 3306],
+  "portsAttributes": {
+    "8000": {
+      "label": "Laravel App",
+      "onAutoForward": "notify"
+    },
+    "3306": {
+      "label": "MySQL"
+    }
+  },
+  "remoteUser": "vscode",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "bmewburn.vscode-intelephense-client",
+        "bradlc.vscode-tailwindcss",
+        "formulahendry.auto-rename-tag",
+        "ms-vscode.vscode-json"
+      ],
+      "settings": {
+        "php.suggest.basic": false,
+        "intelephense.files.maxSize": 5000000
+      }
+    }
+  }
+}
