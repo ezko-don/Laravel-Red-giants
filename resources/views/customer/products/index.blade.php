@@ -1,19 +1,23 @@
 <x-app-layout>
+    <!-- Add Tailwind CDN for immediate styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    
     <div class="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
         <!-- Enhanced Hero Section -->
         <div class="relative bg-gradient-to-r from-purple-600 via-blue-600 to-indigo-700 overflow-hidden">
             <!-- Animated background elements -->
             <div class="absolute inset-0">
-                <div class="absolute top-1/4 left-1/4 w-72 h-72 bg-white/10 rounded-full blur-3xl animate-pulse"></div>
-                <div class="absolute bottom-1/4 right-1/4 w-96 h-96 bg-purple-300/20 rounded-full blur-3xl animate-pulse" style="animation-delay: -2s;"></div>
+                <div class="absolute top-1/4 left-1/4 w-72 h-72 bg-white bg-opacity-10 rounded-full blur-3xl animate-pulse"></div>
+                <div class="absolute bottom-1/4 right-1/4 w-96 h-96 bg-purple-300 bg-opacity-20 rounded-full blur-3xl animate-pulse"></div>
             </div>
             
             <div class="relative max-w-7xl mx-auto py-16 px-4 sm:px-6 lg:px-8">
                 <div class="text-center">
-                    <h1 class="text-4xl md:text-6xl font-bold text-white mb-4 animate__animated animate__fadeInDown">
+                    <h1 class="text-4xl md:text-6xl font-bold text-white mb-4">
                         🛍️ <span class="text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-pink-400">Premium</span> Products
                     </h1>
-                    <p class="text-xl text-white/90 max-w-2xl mx-auto animate__animated animate__fadeInUp">
+                    <p class="text-xl text-white text-opacity-90 max-w-2xl mx-auto">
                         Discover our curated collection of high-quality products with amazing deals and fast shipping
                     </p>
                 </div>
@@ -117,16 +121,15 @@
             @if($products->count() > 0)
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
                     @foreach($products as $index => $product)
-                        <div class="group bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 overflow-hidden animate__animated animate__fadeInUp" 
-                             style="animation-delay: {{ $index * 0.1 }}s;">
+                        <div class="group bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 overflow-hidden"> 
                             <!-- Product Image -->
-                            <div class="relative overflow-hidden bg-gray-100 aspect-w-1 aspect-h-1 group-hover:bg-gray-200 transition-colors duration-500">
+                            <div class="relative overflow-hidden bg-gray-100 h-64">
                                 @if($product->image)
                                     <img src="{{ Storage::url($product->image) }}" 
                                          alt="{{ $product->name }}" 
                                          class="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-500">
                                 @else
-                                    <!-- Enhanced placeholder with product-specific icons and gradients -->
+                                    <!-- Enhanced placeholder with gradients and icons -->
                                     @php
                                         $gradients = [
                                             'from-purple-400 to-pink-400',
@@ -138,54 +141,23 @@
                                             'from-teal-400 to-cyan-400',
                                             'from-orange-400 to-red-400'
                                         ];
-                                        $icons = [
-                                            // Electronics
-                                            '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/>',
-                                            // Headphones  
-                                            '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"/>',
-                                            // Camera
-                                            '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/>',
-                                            // Laptop
-                                            '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17V7a2 2 0 012-2h6a2 2 0 012 2v10a2 2 0 01-2 2H5a3 3 0 01-3-3 3 3 0 013-3h4z"/>',
-                                            // Watch
-                                            '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>',
-                                            // Clothing
-                                            '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>',
-                                            // Book
-                                            '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>',
-                                            // Gaming
-                                            '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 4a2 2 0 114 0v1a1 1 0 001 1h3a1 1 0 011 1v3a1 1 0 01-1 1h-1a2 2 0 100 4h1a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-1a2 2 0 10-4 0v1a1 1 0 01-1 1H7a1 1 0 01-1-1v-3a1 1 0 011-1h1a2 2 0 100-4H7a1 1 0 01-1-1V7a1 1 0 011-1h3a1 1 0 001-1V4z"/>'
-                                        ];
                                         $gradientIndex = $loop->index % count($gradients);
-                                        $iconIndex = $loop->index % count($icons);
                                         $gradient = $gradients[$gradientIndex];
-                                        $icon = $icons[$iconIndex];
                                     @endphp
                                     <div class="w-full h-64 bg-gradient-to-br {{ $gradient }} flex items-center justify-center group-hover:from-purple-500 group-hover:to-pink-500 transition-all duration-500 relative overflow-hidden">
-                                        <!-- Animated background pattern -->
-                                        <div class="absolute inset-0 opacity-10">
-                                            <div class="absolute top-4 left-4 w-8 h-8 bg-white rounded-full animate-pulse"></div>
-                                            <div class="absolute top-12 right-8 w-6 h-6 bg-white rounded-full animate-pulse" style="animation-delay: 0.5s;"></div>
-                                            <div class="absolute bottom-8 left-8 w-4 h-4 bg-white rounded-full animate-pulse" style="animation-delay: 1s;"></div>
-                                            <div class="absolute bottom-4 right-4 w-10 h-10 bg-white rounded-full animate-pulse" style="animation-delay: 1.5s;"></div>
-                                        </div>
-                                        
                                         <!-- Main product icon -->
                                         <div class="relative z-10 transform group-hover:scale-110 group-hover:rotate-12 transition-all duration-500">
                                             <svg class="w-20 h-20 text-white drop-shadow-lg" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                {!! $icon !!}
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/>
                                             </svg>
                                         </div>
                                         
                                         <!-- Floating particles -->
                                         <div class="absolute inset-0 pointer-events-none">
-                                            <div class="absolute top-1/4 left-1/4 w-2 h-2 bg-white/30 rounded-full animate-bounce" style="animation-delay: 0.2s;"></div>
-                                            <div class="absolute top-3/4 right-1/4 w-3 h-3 bg-white/20 rounded-full animate-bounce" style="animation-delay: 0.8s;"></div>
-                                            <div class="absolute top-1/2 left-3/4 w-1 h-1 bg-white/40 rounded-full animate-bounce" style="animation-delay: 1.2s;"></div>
+                                            <div class="absolute top-1/4 left-1/4 w-2 h-2 bg-white bg-opacity-30 rounded-full animate-bounce"></div>
+                                            <div class="absolute top-3/4 right-1/4 w-3 h-3 bg-white bg-opacity-20 rounded-full animate-bounce"></div>
+                                            <div class="absolute top-1/2 left-3/4 w-1 h-1 bg-white bg-opacity-40 rounded-full animate-bounce"></div>
                                         </div>
-                                        
-                                        <!-- Shimmer effect -->
-                                        <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -skew-x-12 animate-shimmer"></div>
                                     </div>
                                 @endif
                                 
