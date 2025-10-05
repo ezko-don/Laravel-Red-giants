@@ -1,79 +1,88 @@
 # SQL Query Answers - Mini Shop Lite Assessment
 
-## Query 1: Get all orders with their customer information and total amount
-```sql
-SELECT 
-    o.id as order_id,
-    o.created_at as order_date,
-    o.status,
-    o.total_amount,
-    u.name as customer_name,
-    u.email as customer_email
-FROM orders o
-JOIN users u ON o.user_id = u.id
-ORDER BY o.created_at DESC;
-```
-
-**Screenshot:** This query retrieves all orders along with customer details, showing order ID, date, status, total amount, and customer information.
-
-## Query 2: Get products with their sales statistics
+## Query 1: Top 5 best-selling products by total quantity
 ```sql
 SELECT 
     p.id,
     p.name,
     p.price,
-    p.stock,
-    COALESCE(SUM(oi.quantity), 0) as total_sold,
-    COALESCE(SUM(oi.quantity * oi.price), 0) as total_revenue,
-    COUNT(DISTINCT oi.order_id) as number_of_orders
+    COALESCE(SUM(oi.quantity), 0) as total_quantity_sold
 FROM products p
 LEFT JOIN order_items oi ON p.id = oi.product_id
-GROUP BY p.id, p.name, p.price, p.stock
-ORDER BY total_revenue DESC;
+GROUP BY p.id, p.name, p.price
+ORDER BY total_quantity_sold DESC
+LIMIT 5;
 ```
 
-**Screenshot:** This query shows product performance metrics including total units sold, revenue generated, and number of orders containing each product.
+**Screenshot:** This query shows the top 5 products by total units sold across all orders.
 
-## Query 3: Get customer purchase history with order details
+## Query 2: Total revenue per day for the last 7 days (show 0 on days with no orders)
 ```sql
 SELECT 
-    u.name as customer_name,
-    u.email,
-    COUNT(DISTINCT o.id) as total_orders,
-    COALESCE(SUM(o.total_amount), 0) as total_spent,
-    MAX(o.created_at) as last_order_date,
-    GROUP_CONCAT(
-        CONCAT(p.name, ' (', oi.quantity, 'x)')
-        ORDER BY oi.created_at DESC
-        SEPARATOR ', '
-    ) as recent_products
-FROM users u
-LEFT JOIN orders o ON u.id = o.user_id
-LEFT JOIN order_items oi ON o.id = oi.order_id
-LEFT JOIN products p ON oi.product_id = p.id
-WHERE u.role = 'customer'
-GROUP BY u.id, u.name, u.email
-ORDER BY total_spent DESC;
+    DATE(date_series.date) as order_date,
+    COALESCE(SUM(o.total_amount), 0) as daily_revenue
+FROM (
+    SELECT CURDATE() - INTERVAL (a.a + (10 * b.a)) DAY as date
+    FROM (SELECT 0 as a UNION ALL SELECT 1 UNION ALL SELECT 2 UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5 UNION ALL SELECT 6 UNION ALL SELECT 7 UNION ALL SELECT 8 UNION ALL SELECT 9) as a
+    CROSS JOIN (SELECT 0 as a UNION ALL SELECT 1 UNION ALL SELECT 2 UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5 UNION ALL SELECT 6 UNION ALL SELECT 7 UNION ALL SELECT 8 UNION ALL SELECT 9) as b
+    ORDER BY date DESC
+    LIMIT 7
+) as date_series
+LEFT JOIN orders o ON DATE(o.created_at) = DATE(date_series.date)
+GROUP BY DATE(date_series.date)
+ORDER BY order_date DESC;
 ```
 
-**Screenshot:** This query provides comprehensive customer analytics including total orders, spending amount, last order date, and recent product purchases.
+**Alternative simpler version for MySQL:**
+```sql
+SELECT 
+    DATE(o.created_at) as order_date,
+    SUM(o.total_amount) as daily_revenue
+FROM orders o
+WHERE o.created_at >= DATE_SUB(CURDATE(), INTERVAL 7 DAY)
+GROUP BY DATE(o.created_at)
+ORDER BY order_date DESC;
+```
+
+**Screenshot:** This query shows daily revenue for the last 7 days, including days with zero revenue.
+
+## Query 3: Per customer: number of orders and lifetime spend
+```sql
+SELECT 
+    u.id as customer_id,
+    u.name as customer_name,
+    u.email,
+    COUNT(o.id) as total_orders,
+    COALESCE(SUM(o.total_amount), 0) as lifetime_spend
+FROM users u
+LEFT JOIN orders o ON u.id = o.user_id
+WHERE u.role = 'customer'
+GROUP BY u.id, u.name, u.email
+ORDER BY lifetime_spend DESC;
+```
+
+**Screenshot:** This query provides customer analytics showing order count and total spending per customer.
 
 ## Database Schema Overview
 
+### Tables Structure:
+```sql
+-- users (id, name, email, password, role: admin/customer)
+-- products (id, name, price, stock, description)
+-- orders (id, user_id, total_amount, created_at)
+-- order_items (id, order_id, product_id, quantity, price)
+-- carts (id, user_id, product_id, quantity) [for session alternative]
+```
+
 ### Key Relationships:
 - Users (1:many) Orders
-- Users (1:many) Carts
-- Orders (1:many) OrderItems
+- Orders (1:many) OrderItems  
 - Products (1:many) OrderItems
+- Users (1:many) Carts
 - Products (1:many) Carts
 
-### Index Recommendations:
-1. `orders(user_id, created_at)` - For customer order history
-2. `order_items(product_id)` - For product sales analysis
-3. `carts(user_id)` - For cart operations
-4. `products(stock)` - For inventory queries
-
-### Performance Notes:
-- Use database transactions for order processing
-- Consider caching frequently accessed product data
-- Implement soft deletes for orders and products for audit trail
+### Sample Data Insights:
+- 10 seeded products with realistic pricing ($39.99 - $1499.99)
+- Demo users: admin@demo.com and customer@demo.com
+- Stock levels: 20-200 units per product
+- Order processing reduces stock automatically
