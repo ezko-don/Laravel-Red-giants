@@ -109,4 +109,23 @@ class OrderController extends Controller
         return redirect()->route('customer.orders.show', $order)
             ->with('success', "Order #{$order->id} placed successfully! Your order is being processed.");
     }
+
+    public function cancel(Order $order)
+    {
+        $this->authorize('cancel', $order);
+
+        DB::transaction(function () use ($order) {
+            // Restore stock for all order items
+            foreach ($order->orderItems as $item) {
+                $product = $item->product;
+                $product->increment('stock', $item->quantity);
+            }
+
+            // Update order status
+            $order->update(['status' => 'cancelled']);
+        });
+
+        return redirect()->route('customer.orders.show', $order)
+            ->with('success', "Order #{$order->id} has been cancelled successfully. Stock has been restored.");
+    }
 }

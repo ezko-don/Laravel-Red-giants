@@ -115,9 +115,30 @@
                     </div>
 
                     <!-- Order Actions -->
-                    <div class="mt-8 flex justify-center">
-                        <p class="text-gray-500 text-sm">
-                            Need help with your order? Contact our support team.
+                    <div class="mt-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+                        @can('cancel', $order)
+                            <form method="POST" action="{{ route('customer.orders.cancel', $order) }}" 
+                                  onsubmit="return confirm('Are you sure you want to cancel this order? This action cannot be undone.')">
+                                @csrf
+                                @method('PATCH')
+                                <button type="submit" 
+                                        class="bg-red-600 text-white px-6 py-3 rounded-xl hover:bg-red-700 transition-all duration-300 font-medium flex items-center space-x-2 shadow-lg hover:shadow-xl transform hover:scale-105">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                    </svg>
+                                    <span>Cancel Order</span>
+                                </button>
+                            </form>
+                        @endcan
+                        
+                        <p class="text-gray-500 text-sm text-center">
+                            @if($order->status === 'pending')
+                                Need help with your order? Contact our support team.
+                            @elseif($order->status === 'cancelled')
+                                <span class="text-red-600 font-medium">This order has been cancelled.</span>
+                            @else
+                                Order is being processed. Contact support if you have questions.
+                            @endif
                         </p>
                     </div>
                 </div>
