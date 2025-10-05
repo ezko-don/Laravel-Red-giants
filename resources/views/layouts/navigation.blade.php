@@ -18,7 +18,7 @@
                     
                     @auth
                         @if(auth()->user()->isAdmin())
-                            <x-nav-link :href="route('admin.products.index')" :active="request()->routeIs('admin.*')">
+                            <x-nav-link :href="route('admin.dashboard')" :active="request()->routeIs('admin.*')">
                                 {{ __('Admin Panel') }}
                             </x-nav-link>
                         @else
@@ -88,7 +88,7 @@
             
             @auth
                 @if(auth()->user()->isAdmin())
-                    <x-responsive-nav-link :href="route('admin.products.index')" :active="request()->routeIs('admin.*')">
+                    <x-responsive-nav-link :href="route('admin.dashboard')" :active="request()->routeIs('admin.*')">
                         {{ __('Admin Panel') }}
                     </x-responsive-nav-link>
                 @else
