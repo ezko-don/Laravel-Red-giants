@@ -25,31 +25,70 @@ class CartController extends Controller
 
     public function add(Request $request, Product $product)
     {
+        // Default quantity to 1 if not provided
+        $quantity = $request->input('quantity', 1);
+        
+        $request->merge(['quantity' => $quantity]);
+        
         $request->validate([
             'quantity' => 'required|integer|min:1|max:' . $product->stock,
         ]);
+
+        // Check if product is in stock
+        if ($product->stock < 1) {
+            $errorMessage = 'Product is out of stock.';
+            
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => $errorMessage
+                ], 400);
+            }
+            
+            return redirect()->back()
+                ->with('error', $errorMessage);
+        }
 
         $existingCartItem = Cart::where('user_id', Auth::id())
             ->where('product_id', $product->id)
             ->first();
 
         if ($existingCartItem) {
-            $newQuantity = $existingCartItem->quantity + $request->quantity;
+            $newQuantity = $existingCartItem->quantity + $quantity;
             if ($newQuantity > $product->stock) {
+                $errorMessage = 'Not enough stock available. Only ' . ($product->stock - $existingCartItem->quantity) . ' items can be added.';
+                
+                if ($request->expectsJson()) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => $errorMessage
+                    ], 400);
+                }
+                
                 return redirect()->back()
-                    ->with('error', 'Not enough stock available.');
+                    ->with('error', $errorMessage);
             }
             $existingCartItem->update(['quantity' => $newQuantity]);
         } else {
             Cart::create([
                 'user_id' => Auth::id(),
                 'product_id' => $product->id,
-                'quantity' => $request->quantity,
+                'quantity' => $quantity,
+            ]);
+        }
+
+        $successMessage = $product->name . ' added to cart successfully!';
+
+        // Check if this is an AJAX request
+        if ($request->expectsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => $successMessage
             ]);
         }
 
         return redirect()->back()
-            ->with('success', 'Product added to cart successfully!');
+            ->with('success', $successMessage);
     }
 
     public function update(Request $request, Cart $cart)

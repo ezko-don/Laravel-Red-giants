@@ -473,7 +473,7 @@
     </style>
 
     <script>
-        // Quick add to cart functionality
+        // Quick add to cart functionality with real AJAX
         function quickAddToCart(productId) {
             const button = event.target.closest('button');
             const originalText = button.innerHTML;
@@ -488,8 +488,30 @@
             `;
             button.disabled = true;
 
-            // Simulate API call (replace with actual AJAX call)
-            setTimeout(() => {
+            // Get CSRF token
+            const token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+            
+            // Create form data
+            const formData = new FormData();
+            formData.append('_token', token);
+            formData.append('quantity', 1);
+
+            // Make AJAX request
+            fetch(`/cart/add/${productId}`, {
+                method: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json'
+                },
+                body: formData
+            })
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(err => Promise.reject(err));
+                }
+                return response.json();
+            })
+            .then(data => {
                 // Success state
                 button.innerHTML = `
                     <svg class="w-4 h-4 text-green-500" fill="currentColor" viewBox="0 0 20 20">
@@ -498,12 +520,58 @@
                     <span>Added!</span>
                 `;
                 
-                // Reset after 2 seconds
+                // Show success notification
+                showNotification(data.message || 'Product added to cart!', 'success');
+            })
+            .catch(error => {
+                // Error state
+                button.innerHTML = `
+                    <svg class="w-4 h-4 text-red-500" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
+                    </svg>
+                    <span>Error</span>
+                `;
+                showNotification(error.message || 'Failed to add to cart', 'error');
+            })
+            .finally(() => {
+                // Reset button after 2 seconds
                 setTimeout(() => {
                     button.innerHTML = originalText;
                     button.disabled = false;
                 }, 2000);
-            }, 1000);
+            });
+        }
+
+        // Show notification function
+        function showNotification(message, type = 'success') {
+            const notification = document.createElement('div');
+            const bgColor = type === 'success' ? 'bg-green-500' : 'bg-red-500';
+            
+            notification.className = `fixed top-4 right-4 ${bgColor} text-white px-6 py-3 rounded-lg shadow-lg z-50 transform translate-x-full transition-transform duration-300`;
+            notification.innerHTML = `
+                <div class="flex items-center space-x-2">
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                        ${type === 'success' 
+                            ? '<path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>' 
+                            : '<path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>'
+                        }
+                    </svg>
+                    <span>${message}</span>
+                </div>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            // Slide in
+            setTimeout(() => {
+                notification.classList.remove('translate-x-full');
+            }, 100);
+            
+            // Slide out and remove
+            setTimeout(() => {
+                notification.classList.add('translate-x-full');
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
         }
 
         // Intersection Observer for staggered animations
